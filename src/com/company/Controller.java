@@ -7,7 +7,9 @@ public class Controller
     {
         mainWindow = new MainWindow(this);
         addRecipeWindow = new AddRecipeWindow(this);
+        addRecipeWindow = new AddRecipeWindow(this);
     }
     private MainWindow mainWindow;
     private AddRecipeWindow addRecipeWindow;
+    private SearchEngine searchEngine;
 }

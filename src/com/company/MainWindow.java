@@ -101,5 +101,6 @@ public class MainWindow extends JFrame
     private Controller controller;
     private DefaultTableModel model;
     private ScrollPane scrollpane;
+
 }
 
