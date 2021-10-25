@@ -1,10 +1,16 @@
 package com.company;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 
-public class AddRecipeWindow extends JFrame
+public class AddRecipe extends JFrame
 {
-    public AddRecipeWindow(Controller controller)
+    public AddRecipe(Controller controller)
     {
         this.controller = controller;
         GroupLayout layout = new GroupLayout(getContentPane ());
@@ -14,33 +20,68 @@ public class AddRecipeWindow extends JFrame
         enterName.setFont(new Font ("Calibri", Font.BOLD, 20));
 
         name = new JTextField(15);
+        name.getDocument().addDocumentListener(new DocumentListener(){
+            public void changedUpdate(DocumentEvent e) { warn(); }
+            public void removeUpdate(DocumentEvent e) { warn(); }
+            public void insertUpdate(DocumentEvent e) { warn(); }
+            public void warn(){ n = name.getText(); }});
+
 
         chooseCategory1 = new JLabel("Choose the 1st category");
         chooseCategory1.setFont(new Font ("Calibri", Font.BOLD, 20));
 
+        ActionListener defineCat1 = new ActionListener()
+        {
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+            JRadioButton button = (JRadioButton) actionEvent.getSource();
+            cat1 = button.getText();
+            }
+        };
 
         chicken = new JRadioButton("chicken");
+        chicken.addActionListener(defineCat1);
         meat = new JRadioButton("meat");
+        meat.addActionListener(defineCat1);
         fish = new JRadioButton("fish");
+        fish.addActionListener(defineCat1);
         vegetable = new JRadioButton("vegetable");
+        vegetable.addActionListener(defineCat1);
         other1 = new JRadioButton("other");
-        ButtonGroup bg1 =new ButtonGroup();
+        other1.addActionListener(defineCat1);
+        ButtonGroup bg1 = new ButtonGroup();
         bg1.add(chicken);
         bg1.add(meat);
         bg1.add(fish);
         bg1.add(vegetable);
         bg1.add(other1);
 
+
         chooseCategory2 = new JLabel("Choose the 2nd category");
         chooseCategory2.setFont(new Font ("Calibri", Font.BOLD, 20));
 
+        ActionListener defineCat2 = new ActionListener()
+        {
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JRadioButton button = (JRadioButton) actionEvent.getSource();
+                cat2 = button.getText();
+            }
+        };
+
         soup = new JRadioButton("soup");
+        soup.addActionListener(defineCat2);
         pasta = new JRadioButton("pasta");
+        pasta.addActionListener(defineCat2);
         salad = new JRadioButton("salad");
+        salad.addActionListener(defineCat2);
         dessert = new JRadioButton("dessert");
+        dessert.addActionListener(defineCat2);
         pastries = new JRadioButton("pastries");
+        pastries.addActionListener(defineCat2);
         other2 = new JRadioButton("other");
-        ButtonGroup bg2 =new ButtonGroup();
+        other2.addActionListener(defineCat2);
+        ButtonGroup bg2 = new ButtonGroup();
         bg2.add(soup);
         bg2.add(pasta);
         bg2.add(salad);
@@ -48,13 +89,30 @@ public class AddRecipeWindow extends JFrame
         bg2.add(pastries);
         bg2.add(other2);
 
-        addImage = new JLabel("Add the image");
-        addImage.setFont(new Font ("Calibri", Font.BOLD, 20));
 
-        image = new JTextField(15);
-        image.setSize(new Dimension(400, 10));
+        image = new JButton("add image");
+        image.addActionListener((ActionEvent e)->
+        {
+               JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+               FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG & GIF Images", "jpg", "gif", "png");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showOpenDialog(this);
+                if(returnVal == JFileChooser.APPROVE_OPTION)
+                {
+                    originalImagePath = chooser.getSelectedFile().getPath();
+                }
+        });
+
+
 
         save = new JButton("Save");
+        save.addActionListener((ActionEvent e) ->
+                {
+                    //Make an algorithm that checks whether there already is Recipe with that name
+                    controller.AddRecipeToProgram(n, cat1, cat2, controller.createImageFile(n, originalImagePath));
+                    dispose();
+                    //calls method from controller that creates a new Recipe object and stores it in AllRecipes
+                });
 
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
@@ -77,7 +135,6 @@ public class AddRecipeWindow extends JFrame
                                 .addComponent(dessert)
                                 .addComponent(pastries)
                                 .addComponent(other2))
-                        .addComponent(addImage)
                         .addGroup(layout.createSequentialGroup()
                                 .addComponent(image)
                                 .addComponent(save)));
@@ -101,17 +158,23 @@ public class AddRecipeWindow extends JFrame
                                 .addComponent(dessert)
                                 .addComponent(pastries)
                                 .addComponent(other2))
-                        .addComponent(addImage)
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(image)
                                 .addComponent(save)));
+
+
 
         setSize(800,500);
         pack();
         setVisible(true);
     }
+    private String n;
+    private String cat1;
+    private String cat2;
+    private String originalImagePath;
+
+
     private Controller controller;
-    private JPanel panel;
     private JLabel enterName;
     private JTextField name;
     private JLabel chooseCategory1;
@@ -127,7 +190,6 @@ public class AddRecipeWindow extends JFrame
     private JRadioButton dessert;
     private JRadioButton pastries;
     private JRadioButton other2;
-    private JLabel addImage;
-    private JTextField image;
+    private JButton image;
     private JButton save;
 }
