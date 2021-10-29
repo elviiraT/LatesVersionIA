@@ -19,20 +19,6 @@ public class Controller
     }
 
 
-    public String createImageFile(String name, String fileName)
-    {
-        String pathName = recipesPath + name;
-        new File(pathName).mkdirs();
-        Path CopyTo = Paths.get(pathName);
-        Path CopyFrom = Paths.get(fileName);
-        try {
-            Files.copy(CopyFrom, CopyTo, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return pathName;
-    }
-
     public DisplayImage constructDisplayImage(String imagePath)
     {
         DisplayImage window = null;
@@ -72,17 +58,17 @@ public class Controller
         return window;
     }
 
-    public SuggestionWindow constructSuggestionWindow()
+    public SuggestionWindow constructSuggestionWindow(String suggestedRecipe, Week w, int PlaceOfDay)
     {
         SuggestionWindow window = null;
-        window = new SuggestionWindow(this);
+        window = new SuggestionWindow(this, suggestedRecipe, w, PlaceOfDay);
         return window;
     }
 
-    public SuggestionSetups constructSuggestionSetups()
+    public SuggestionSetups constructSuggestionSetups(Week week, int placeOfDay)
     {
         SuggestionSetups window = null;
-        window = new SuggestionSetups(this);
+        window = new SuggestionSetups(this, week, placeOfDay);
         return window;
     }
 
@@ -93,38 +79,67 @@ public class Controller
         return window;
     }
 
-    public void AddRecipeToCalendar(Week w, int num, String RecipeName)
+
+
+
+
+
+
+
+
+
+
+    public void AddRecipeToCalendar(Week w, int day, String RecipeName)
+    // iterates through all the recipes saved in the program and checks if the recipe name given in the parameters corresponds to
+    // the name of a recipe in the list of all recipes and then if it finds a match it adds the recipe to the given day of the given week
     {
-        for (int i = 0; i < allRecipes.size(); i++)
+        for (int i = 0; i < allRecipes.size(); i++) // iterates through all recipes
         {
-            if (RecipeName.equals(allRecipes.get(i).getName()))  // compares to the name of the recipe at index i
+            if (RecipeName.equals(allRecipes.get(i).getName()))  // compares the recipe name to the name of the recipe at index i
             {
-                w.getDailyRecipe(num).addToList(allRecipes.get(i));
+                w.getDailyRecipe(day).add(allRecipes.get(i));
+                //if a matching name is found, the recipe is added to the list of recipes of the given day of the given week
                 mainWindow.UpdateCalendar();
             }
         }
     }
 
-    public void RemoveRecipeFromCalendar(Week w, int c, int r)
+    public void RemoveRecipeFromCalendar(Week w, int placeOfDay, int indexOfRecipe)
+    // removes the recipe at the given index of the given week and day of week
     {
-        w.getDailyRecipe(c).removeFromList(r);
+        w.getDailyRecipe(placeOfDay).remove(indexOfRecipe);
         mainWindow.UpdateCalendar();
     }
 
-    public String SearchRecipeImagePath(Recipe r)
-    {
-        String path = null;
-        for (int i = 0; i < allRecipes.size(); i++)
-        {
-            if (r == allRecipes.get(i))
-                path = allRecipes.get(i).getImage();
-        }
-        return path;
-    }
+
+   // public String SearchRecipeImagePath(Recipe r)
+   // {
+   //     String path = null;
+   //     for (int i = 0; i < allRecipes.size(); i++)
+   //     {
+   //         if (r == allRecipes.get(i))
+   //             path = allRecipes.get(i).getImage();
+   //     }
+   //     return path;
+   // }
 
     public void AddRecipeToProgram(String nameOfRecipe, String category1, String category2, String originalPathOfImage)
     {
         allRecipes.add(new Recipe(nameOfRecipe, category1, category2, createImageFile(nameOfRecipe, originalPathOfImage)));
+    }
+
+    public String createImageFile(String name, String fileName)
+    {
+        String pathName = recipesPath + name;
+        new File(pathName).mkdirs();
+        Path CopyTo = Paths.get(pathName);
+        Path CopyFrom = Paths.get(fileName);
+        try {
+            Files.copy(CopyFrom, CopyTo, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pathName;
     }
 
     public boolean CheckIfRecipeNameExists(String name)
@@ -138,16 +153,78 @@ public class Controller
         return exist;
     }
 
-    private MainWindow mainWindow;
-    private AddRecipe addRecipe;
-    private SearchEngine searchEngine;
-    private EnterNameOfRecipe enterNameOfRecipe;
-    private NoSuggestions noSuggestions;
-    private SuggestionSetups suggestionSetups;
-    private SuggestionWindow suggestionWindow;
-    private DisplayImage displayImage;
+    public Recipe SuggestARecipe (String category1, String category2, Week w, int placeOfDay)   //method that returns the recipe from the both categories that the user has selected
+    {
+        suggestionList = new LinkedList<>();
+        int placeOfWeek;
+        if (w.getWeekType().equals(WeekType.Next))
+            placeOfWeek = 2;
+        else
+            placeOfWeek = 1;
+
+        for (int week = placeOfWeek; week >= 0; week--)
+        {
+                AddingRecipesOfAWeekToSuggestionList(week, placeOfDay, category1, category2);
+                placeOfDay = 6;
+        }
+
+        AddingRecipesOFromAListToSuggestionList(pastData, category1, category2);
+        AddingRecipesOFromAListToSuggestionList(allRecipes, category1, category2);
+
+        if (!suggestionList.isEmpty())
+            return suggestionList.removeFirst();
+        else
+            return null;
+    }
+
+    public boolean MatchingCategory(Recipe r, String cat1, String cat2)
+    {
+        boolean match = false;
+        if ((cat1.equals("all") && cat2.equals("all")) || (cat1.equals("all") && cat2.equals(r.getCategory2())) || (cat1.equals(r.getCategory1()) && cat2.equals("all")) || (cat1.equals(r.getCategory1()) && cat2.equals(r.getCategory2())))
+            //checks if the recipe belongs to the given options of category 1 and category 2, if a category is "all" all options of the category are accepted
+            match = true;
+        return match;
+    }
+
+    public boolean NotFound(LinkedList<Recipe> list,Recipe r)
+    {
+        boolean notFound = true;
+        for (int i = 0; i < list.size() && notFound; i++)
+            if (list.get(i).equals(r))
+                notFound = false;
+        return notFound;
+    }
+
+    public void AddingRecipesOfAWeekToSuggestionList(int placeOfWeek, int placeOfDay, String category1, String category2)
+    {
+        for (int day = placeOfDay; day >= 0; day--)
+        {
+            int NumberOfRecipesOfDay = weeks[placeOfWeek].getDailyRecipe(day).size();
+            LinkedList<Recipe> ListOfRecipesOfDay = weeks[placeOfWeek].getDailyRecipe(day);
+            for(int recipe = 0; recipe < NumberOfRecipesOfDay; recipe++)
+            {
+                Recipe compare = ListOfRecipesOfDay.get(recipe);
+                if (MatchingCategory(compare, category1, category2) && NotFound(suggestionList, compare))
+                    suggestionList.addFirst(compare);
+            }
+        }
+    }
+
+    public void AddingRecipesOFromAListToSuggestionList (LinkedList<Recipe> list, String category1, String category2)
+    {
+        for (int indexOfRecipe = 0; indexOfRecipe < list.size(); indexOfRecipe++)
+        {
+            Recipe check = list.get(indexOfRecipe);
+            if (MatchingCategory(check , category1, category2) && NotFound(list, check))
+                suggestionList.addFirst(check);
+        }
+    }
+
+
+    public MainWindow mainWindow;
     public Week[] weeks= {new Week(WeekType.Past), new Week(WeekType.Current), new Week(WeekType.Next)};
     public LinkedList<Recipe> pastData;
     public LinkedList<Recipe> allRecipes;
     public String recipesPath;
+    public LinkedList<Recipe> suggestionList;
 }

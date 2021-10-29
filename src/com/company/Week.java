@@ -9,15 +9,21 @@ public class Week
         this.type = type;
     }
 
-    public DailyRecipes getDailyRecipe(int i)
+    public LinkedList<Recipe> getDailyRecipe(int i)
     {
-        DailyRecipes day =daysList[i];
+        LinkedList<Recipe> day =daysList[i];
         return day;
     }
 
+    public WeekType getWeekType()
+    {
+        return type;
+    }
+
     private WeekType type;
-    private DailyRecipes[] daysList = {new DailyRecipes(Day.Monday), new DailyRecipes(Day.Tuesday), new DailyRecipes(Day.Wednesday),
-            new DailyRecipes(Day.Thursday), new DailyRecipes(Day.Friday), new DailyRecipes(Day.Saturday), new DailyRecipes(Day.Sunday)};
+    private LinkedList[] daysList = {new LinkedList<Recipe>(),new LinkedList<Recipe>(),new LinkedList<Recipe>(),new LinkedList<Recipe>(),new LinkedList<Recipe>(),new LinkedList<Recipe>(),new LinkedList<Recipe>()};
+            //{new DailyRecipes(Day.Monday), new DailyRecipes(Day.Tuesday), new DailyRecipes(Day.Wednesday),
+           // new DailyRecipes(Day.Thursday), new DailyRecipes(Day.Friday), new DailyRecipes(Day.Saturday), new DailyRecipes(Day.Sunday)};
 }
 enum WeekType {Past, Current, Next}
 

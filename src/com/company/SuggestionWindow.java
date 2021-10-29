@@ -1,18 +1,33 @@
 package com.company;
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.ActionEvent;
 
 public class SuggestionWindow extends JFrame
 {
-    public SuggestionWindow (Controller controller)
+    public SuggestionWindow (Controller controller, String suggestedRecipe, Week w, int placeOfDay)
     {
         this.controller = controller;
-        JLabel suggestion = new JLabel("*name of the suggested recipe*");
+
+        JLabel suggestion = new JLabel(suggestedRecipe);
         suggestion.setFont(new Font("Calibri", Font.BOLD, 22));
+
         JButton accept = new JButton ("Accept");
-        JButton cancel = new JButton ("Cancel");
+        accept.addActionListener((ActionEvent e)-> {
+            controller.AddRecipeToCalendar(w, placeOfDay, suggestedRecipe);
+            controller.mainWindow.UpdateCalendar();
+            dispose();
+        });
+
         JButton newSuggestion = new JButton ("New suggestion");
+        newSuggestion.addActionListener((ActionEvent e)-> {
+            controller.constructSuggestionWindow(controller.suggestionList.removeFirst().getName(), w, placeOfDay);
+            dispose();
+        });
+
+        JButton cancel = new JButton ("Cancel");
+        cancel.addActionListener((ActionEvent e)-> dispose());
+
 
         GroupLayout layout = new GroupLayout(getContentPane ());
         getContentPane ().setLayout (layout);
@@ -33,6 +48,7 @@ public class SuggestionWindow extends JFrame
                                 .addComponent(accept)
                                 .addComponent(cancel)
                                 .addComponent(newSuggestion)));
+
         setVisible(true);
         pack();
     }

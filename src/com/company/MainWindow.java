@@ -18,7 +18,7 @@ public class MainWindow extends JFrame
 
         for (int x = 0; x < 7; x++)
         {
-            recipeList.add(w.getDailyRecipe(x).getRecipes());// gets the recipes of the Weeks w DailyRecipes Recipes list for each day
+            recipeList.add(w.getDailyRecipe(x));// gets the recipes of the Weeks w DailyRecipes Recipes list for each day
         }
         String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
@@ -31,7 +31,7 @@ public class MainWindow extends JFrame
             }
 
             public int getRowCount() {
-                int max = 0;
+                int max = 1; // The table always has at least one row, if the dailyRecipe does not contain recipes the text "Click to select" is added to the first row
                 for (List<Recipe> list : recipeList)
                     max = Math.max(max, list.size());
                 return max;
@@ -40,6 +40,8 @@ public class MainWindow extends JFrame
             public Object getValueAt(int row, int column)
             {
                 List<Recipe> list = recipeList.get(column);
+                if (list.isEmpty()&& row == 0)
+                    return "Click to select";
                 if (row < list.size())
                     return list.get(row);
                 else
@@ -63,7 +65,7 @@ public class MainWindow extends JFrame
         JMenu columnMenu = new JMenu("Change calendar");
         JMenuItem add = new JMenuItem("Add a recipe");
         JMenuItem suggest = new JMenuItem("Suggest a recipe");
-        suggest.addActionListener((ActionEvent e)-> controller.constructSuggestionSetups());
+        suggest.addActionListener((ActionEvent e)-> SuggestARecipe(w));
         JMenuItem view = new JMenuItem("View a recipe");
         JMenuItem delete = new JMenuItem("Delete a recipe");
         add.addActionListener((ActionEvent e) -> addData(w));
@@ -178,9 +180,15 @@ public class MainWindow extends JFrame
     {
         int column = table.getSelectedColumn();
         int row = table.getSelectedRow();
-        Recipe r = w.getDailyRecipe(column).getRecipe(row);
-        controller.constructDisplayImage(controller.SearchRecipeImagePath(r));
-        System.out.println(r);
+        Recipe r = w.getDailyRecipe(column).get(row);
+        controller.constructDisplayImage(r.getImage());
+    }
+
+    private void SuggestARecipe(Week w)
+    {
+        int placeOfDay = table.getSelectedColumn();
+        if (placeOfDay > -1)
+            controller.constructSuggestionSetups(w, placeOfDay);
     }
 
 

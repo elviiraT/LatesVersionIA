@@ -15,22 +15,21 @@ public class SearchEngine extends JFrame
     {
         this.controller = controller;
 
-
-        DefaultListModel<String> l = new DefaultListModel<>();
+        l = new DefaultListModel<>();
         for(String val : getRecipeNames())
             l.addElement(val);
-        JList<String> name = new JList(l);
+        name = new JList(l);
 
 
-        DefaultListModel<String> l1 = new DefaultListModel<>();
+        l1 = new DefaultListModel<>();
         for(String val1 : getRecipeCat1())
             l1.addElement(val1);
-        JList<String> cat1 = new JList<>(l1);
+        cat1 = new JList<>(l1);
 
-        DefaultListModel<String> l2 = new DefaultListModel<>();
+        l2 = new DefaultListModel<>();
         for(String val2 : getRecipeCat2())
             l2.addElement(val2);
-        JList<String> cat2 = new JList<>(l2);
+        cat2 = new JList<>(l2);
 
         resultPanel = new JPanel();
         resultPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -78,8 +77,18 @@ public class SearchEngine extends JFrame
         mainPanel.setLayout(mainLayout);
 
         search = new JTextField();
+        search.addKeyListener(new KeyAdapter()
+        {
+            public void keyReleased(KeyEvent evt)
+            {
+                searchTxtKeyReleased(evt);
+            }
+        });
+
         String[] choices = {"name","category 1", "category 2" };
+        typeOfSearch = "name";
         choose = new JComboBox(choices);
+        choose.addActionListener((ActionEvent e)-> typeOfSearch = (String)choose.getSelectedItem());
 
 
         mainLayout.setAutoCreateGaps(true);
@@ -100,24 +109,12 @@ public class SearchEngine extends JFrame
         add(mainPanel);
         setSize(600, 600);
         setVisible(true);
-
-
-        typeOfSearch = "name";
-        choose.addActionListener((ActionEvent e)-> { typeOfSearch = (String)choose.getSelectedItem(); });
-
-        search.addKeyListener(new KeyAdapter()
-        {
-            public void keyReleased(KeyEvent evt)
-            {
-                searchTxtKeyReleased(evt);
-            }
-        });
-
-
     }
+
+
     private ArrayList<String> getRecipeNames()
     {
-        ArrayList RecipeNames = new ArrayList();
+        ArrayList RecipeNames = new ArrayList<>();
         for(int i = 0; i < controller.allRecipes.size(); i++)
         {
             String nameOfRecipe = controller.allRecipes.get(i).getName();
@@ -169,26 +166,66 @@ public class SearchEngine extends JFrame
     }
 
 
-    private void searchFilter(String searchTerm)
+    private void searchFilter(String searchTerm, JList displayOfSearchedList, ArrayList<String> searchedList, DefaultListModel fullSearchedList,
+                              JList displayOfSecondList, ArrayList<String> secondList, DefaultListModel fullSecondList,
+                              JList displayOfThirdList, ArrayList<String> thirdList, DefaultListModel fullThirdList)
     {
-        DefaultListModel filteredItems=new DefaultListModel();
-        ArrayList RecipeNames  = getRecipeNames();
+        DefaultListModel filteredItemsSearchedList = new DefaultListModel();
+        ArrayList<Integer> indicesOfAddedRecipes = new ArrayList<>();
 
-        RecipeNames.stream().forEach((recipe) ->
+        if (!searchTerm.equals(""))
         {
-            String RecipeName = recipe.toString().toLowerCase();
-            if (RecipeName.contains(searchTerm.toLowerCase()))
+            int length = searchTerm.length();
+            for (int i = 0; i < searchedList.size(); i++)
             {
-                filteredItems.addElement(recipe);
+                String r = searchedList.get(i);
+                if (r.length()> length)
+                {
+                    String checkIfSame = r.substring(0, length);
+                    if (searchTerm.toLowerCase().equals(checkIfSame))
+                    {
+                        filteredItemsSearchedList.addElement(r);
+                        indicesOfAddedRecipes.add(i);
+                    }
+                }
             }
-        });
-        l = filteredItems;
-        name.setModel(l);
+            displayOfSearchedList.setModel(filteredItemsSearchedList);
+            SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, displayOfSecondList, secondList);
+            SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, displayOfThirdList, thirdList);
+        }
+        else
+            {
+            displayOfSearchedList.setModel(fullSearchedList);
+            displayOfSecondList.setModel(fullSecondList);
+            displayOfThirdList.setModel(fullThirdList);
+            }
     }
+
+   private void SwitchingOtherListsAtTheSameTimeAsTheSearchedList(ArrayList<Integer> indicesOfAddedRecipe,
+                                                                  JList DisplayOfList, ArrayList<String> allRecipes)
+   {
+       DefaultListModel filteredItems = new DefaultListModel();
+       for (int x = 0; x < indicesOfAddedRecipe.size(); x++)
+       {
+           filteredItems.addElement(allRecipes.get(indicesOfAddedRecipe.get(x)));
+       }
+       DisplayOfList.setModel(filteredItems);
+   }
 
     private void searchTxtKeyReleased(KeyEvent evt)
     {
-        searchFilter(search.getText());
+        if (typeOfSearch.equals("name"))
+        {
+            searchFilter(search.getText(), name, getRecipeNames(), l, cat1, getRecipeCat1(), l1, cat2,getRecipeCat2(), l2);
+        }
+        else if (typeOfSearch.equals("category 1"))
+        {
+            searchFilter(search.getText(), cat1, getRecipeCat1(), l1, name, getRecipeNames(), l, cat2, getRecipeCat2(), l2);
+        }
+        else
+        {
+            searchFilter(search.getText(), cat2, getRecipeCat2(), l2, name, getRecipeNames(), l, cat1, getRecipeCat1(), l1);
+        }
     }
 
     private JPanel mainPanel;
