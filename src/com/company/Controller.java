@@ -1,16 +1,16 @@
 package com.company;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
-import java.io.File;
 
-public class Controller
+public class Controller implements Serializable
 {
     public Controller()
     {
+        weeks = Serialization.ReadWeeks();
         mainWindow = new MainWindow(this, "Current Week", weeks[1]);   //creates the mainWindow with the current week
         allRecipes = new LinkedList<>();
         pastData = new LinkedList<>();
@@ -153,29 +153,64 @@ public class Controller
         return exist;
     }
 
-    public Recipe SuggestARecipe (String category1, String category2, Week w, int placeOfDay)   //method that returns the recipe from the both categories that the user has selected
+
+
+
+    public Recipe SuggestARecipe (String category1, String category2, Week w, int placeOfDay)
+    //method that creates a new suggestion list (according to the both categories that the user has selected)
+    // and returns the first recipe from that list
     {
         suggestionList = new LinkedList<>();
-        int placeOfWeek;
+        int placeOfWeek; //variable that will store the place of the week
         if (w.getWeekType().equals(WeekType.Next))
+            // Does not include the Past week because the user would not plan the meals of a past week
             placeOfWeek = 2;
         else
             placeOfWeek = 1;
 
-        for (int week = placeOfWeek; week >= 0; week--)
+        for (int week = placeOfWeek; week >= 0; week--) //goes through
         {
                 AddingRecipesOfAWeekToSuggestionList(week, placeOfDay, category1, category2);
                 placeOfDay = 6;
         }
 
-        AddingRecipesOFromAListToSuggestionList(pastData, category1, category2);
-        AddingRecipesOFromAListToSuggestionList(allRecipes, category1, category2);
+        AddingRecipesFromAListToSuggestionList(pastData, category1, category2);
+        AddingRecipesFromAListToSuggestionList(allRecipes, category1, category2);
 
         if (!suggestionList.isEmpty())
             return suggestionList.removeFirst();
         else
             return null;
     }
+
+    public void AddingRecipesFromAListToSuggestionList (LinkedList<Recipe> list, String category1, String category2)
+    {
+        for (int indexOfRecipe = 0; indexOfRecipe < list.size(); indexOfRecipe++)
+        {
+            Recipe check = list.get(indexOfRecipe);
+            if (MatchingCategory(check , category1, category2) && NotFound(list, check))
+                suggestionList.addFirst(check);
+        }
+    }
+
+    public void AddingRecipesOfAWeekToSuggestionList(int placeOfWeek, int placeOfDay, String category1, String category2)
+    {
+    for (int day = placeOfDay; day >= 0; day--)
+    {
+        int NumberOfRecipesOfDay = weeks[placeOfWeek].getDailyRecipe(day).size();
+        LinkedList<Recipe> ListOfRecipesOfDay = weeks[placeOfWeek].getDailyRecipe(day);
+        for(int recipe = 0; recipe < NumberOfRecipesOfDay; recipe++)
+        {
+            Recipe compare = ListOfRecipesOfDay.get(recipe);
+            if (MatchingCategory(compare, category1, category2) && NotFound(suggestionList, compare))
+                suggestionList.addFirst(compare);
+        }
+    }
+}
+
+
+
+
 
     public boolean MatchingCategory(Recipe r, String cat1, String cat2)
     {
@@ -195,34 +230,18 @@ public class Controller
         return notFound;
     }
 
-    public void AddingRecipesOfAWeekToSuggestionList(int placeOfWeek, int placeOfDay, String category1, String category2)
+    public void SaveData()
     {
-        for (int day = placeOfDay; day >= 0; day--)
-        {
-            int NumberOfRecipesOfDay = weeks[placeOfWeek].getDailyRecipe(day).size();
-            LinkedList<Recipe> ListOfRecipesOfDay = weeks[placeOfWeek].getDailyRecipe(day);
-            for(int recipe = 0; recipe < NumberOfRecipesOfDay; recipe++)
-            {
-                Recipe compare = ListOfRecipesOfDay.get(recipe);
-                if (MatchingCategory(compare, category1, category2) && NotFound(suggestionList, compare))
-                    suggestionList.addFirst(compare);
-            }
-        }
+        Serialization.SaveWeeks(weeks);
     }
 
-    public void AddingRecipesOFromAListToSuggestionList (LinkedList<Recipe> list, String category1, String category2)
-    {
-        for (int indexOfRecipe = 0; indexOfRecipe < list.size(); indexOfRecipe++)
-        {
-            Recipe check = list.get(indexOfRecipe);
-            if (MatchingCategory(check , category1, category2) && NotFound(list, check))
-                suggestionList.addFirst(check);
-        }
-    }
+
+
+
 
 
     public MainWindow mainWindow;
-    public Week[] weeks= {new Week(WeekType.Past), new Week(WeekType.Current), new Week(WeekType.Next)};
+    public Week[] weeks;
     public LinkedList<Recipe> pastData;
     public LinkedList<Recipe> allRecipes;
     public String recipesPath;

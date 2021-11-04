@@ -53,5 +53,4 @@ public class EnterNameOfRecipe extends JFrame
     }
     private Controller controller;
     private String RecipeName;
-    private Week w;
 }

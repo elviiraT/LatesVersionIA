@@ -3,10 +3,15 @@ import javax.print.DocFlavor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 import javax.swing.border.TitledBorder;
 
 public class SearchEngine extends JFrame
@@ -189,9 +194,20 @@ public class SearchEngine extends JFrame
                     }
                 }
             }
-            displayOfSearchedList.setModel(filteredItemsSearchedList);
-            SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, displayOfSecondList, secondList);
-            SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, displayOfThirdList, thirdList);
+            DefaultListModel filteredItemsSecondList = SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, secondList);
+            DefaultListModel filteredItemsThirdList = SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, thirdList);
+            if (displayOfSearchedList.equals(cat1))
+                groupingRecipesIntoTheOptionsOfACategory(filteredItemsThirdList, displayOfThirdList,
+                        filteredItemsSecondList, displayOfSecondList, filteredItemsSearchedList, displayOfSearchedList, 6);
+            else if (displayOfSearchedList.equals(cat2))
+                groupingRecipesIntoTheOptionsOfACategory(filteredItemsThirdList, displayOfThirdList,
+                        filteredItemsSecondList, displayOfSecondList, filteredItemsSearchedList, displayOfSearchedList, 5);
+            else
+                {
+                    displayOfSearchedList.setModel(filteredItemsSearchedList);
+                    displayOfSecondList.setModel(filteredItemsSecondList);
+                    displayOfThirdList.setModel(filteredItemsThirdList);
+                }
         }
         else
             {
@@ -201,15 +217,15 @@ public class SearchEngine extends JFrame
             }
     }
 
-   private void SwitchingOtherListsAtTheSameTimeAsTheSearchedList(ArrayList<Integer> indicesOfAddedRecipe,
-                                                                  JList DisplayOfList, ArrayList<String> allRecipes)
+   private DefaultListModel SwitchingOtherListsAtTheSameTimeAsTheSearchedList(ArrayList<Integer> indicesOfAddedRecipe, ArrayList<String> allRecipes)
    {
        DefaultListModel filteredItems = new DefaultListModel();
        for (int x = 0; x < indicesOfAddedRecipe.size(); x++)
        {
            filteredItems.addElement(allRecipes.get(indicesOfAddedRecipe.get(x)));
        }
-       DisplayOfList.setModel(filteredItems);
+       //Personal comment ---> I sould make this return the default list model and not set it yet
+       return filteredItems;
    }
 
     private void searchTxtKeyReleased(KeyEvent evt)
@@ -227,6 +243,40 @@ public class SearchEngine extends JFrame
             searchFilter(search.getText(), cat2, getRecipeCat2(), l2, name, getRecipeNames(), l, cat1, getRecipeCat1(), l1);
         }
     }
+
+    private void groupingRecipesIntoTheOptionsOfACategory(DefaultListModel<String> sortedList, JList displayOfSortedList, DefaultListModel secondList,
+                                                          JList displayOfSecondList, DefaultListModel thirdList, JList displayOfThirdList, int numberOfOptionInCategory)
+    {
+        int startOfOption = 0;
+        for(int i = 0; i < startOfOption; i++) // will loop for ever cause i have not registered 6 recipes with different categories
+        {
+            String option = sortedList.get(startOfOption);
+            int placeToSwitch = startOfOption+1;
+            for(int x = placeToSwitch; x < sortedList.size(); x++)
+            {
+                if(sortedList.get(x).equals(option))
+                {
+                    SwitchingPlaceOfElement(sortedList, x, placeToSwitch);
+                    SwitchingPlaceOfElement(secondList, x, placeToSwitch);
+                    SwitchingPlaceOfElement(thirdList, x, placeToSwitch);
+                    placeToSwitch++;
+                }
+            }
+            startOfOption = placeToSwitch;
+        }
+        displayOfSortedList.setModel(sortedList);
+        displayOfSecondList.setModel(secondList);
+        displayOfThirdList.setModel(thirdList);
+    }
+
+    private void SwitchingPlaceOfElement(DefaultListModel list, int currentPlace, int newPlace)
+    {
+        list.insertElementAt(list.get(currentPlace), newPlace);
+        list.removeElementAt(currentPlace);
+    }
+
+
+
 
     private JPanel mainPanel;
     private Controller controller;

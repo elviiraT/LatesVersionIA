@@ -2,6 +2,8 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
@@ -154,6 +156,13 @@ public class MainWindow extends JFrame
                         .addGap(50, 50, 50)
                         .addComponent(scrollPane));
 
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e)
+            {
+                controller.SaveData();
+            }
+        });
 
         setSize(1000, 650);
         setVisible(true);
