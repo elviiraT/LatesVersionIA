@@ -123,5 +123,5 @@ public class EnterNameOfRecipe extends JFrame
     private JList searchedRecipes;
     private JPopupMenu popup;
     private JTextField recipe;
-    private String recipeName = new String();
+    private String recipeName;
 }
