@@ -9,7 +9,9 @@ import java.util.LinkedList;
 
 public class Serialization
 {
-    static String weeksFile = "weeks";
+    static String weeksFile = "weeks.ser";
+    static String pastData = "pastData.ser";
+    static String allRecipes = "allRecipes.ser";
 
 
     public static void SaveWeeks(Week[] weeks)
@@ -41,6 +43,38 @@ public class Serialization
             System.out.println(e);
         }
         return weeks;
+    }
+
+
+    public static void SaveRecipesList(LinkedList<Recipe> list, String file)
+    {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file)))
+        {
+            out.writeObject(list);
+        } catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public static LinkedList<Recipe> ReadRecipesList(String file)
+    {
+        LinkedList<Recipe> list = null;
+        File f = new File(file);
+        if(!f.exists())
+        {
+            list = new LinkedList<Recipe>();
+        }
+
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file)))
+        {
+            list = (LinkedList<Recipe>) in.readObject();
+
+        } catch (Exception e)
+        {
+            System.out.println(e);
+        }
+        return list;
     }
 }
 

@@ -1,14 +1,7 @@
 package com.company;
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.Serializable;
 
-public class Recipe
+public class Recipe implements Serializable
 {
     public Recipe (String name, String category1, String category2, String image)
     {
@@ -41,6 +34,8 @@ public class Recipe
     {
         return name;
     }
+    // toString method that returns the name of the Recipe so the recipe would be presented in the
+    // calendar with its name
 
 
     private String name;

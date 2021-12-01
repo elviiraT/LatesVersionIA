@@ -10,22 +10,42 @@ public class SuggestionWindow extends JFrame
         this.controller = controller;
 
         JLabel suggestion = new JLabel(suggestedRecipe);
-        suggestion.setFont(new Font("Calibri", Font.BOLD, 22));
+        suggestion.setFont(new Font("Bookman Old Style", Font.PLAIN, 18));
+
+        Color buttonColor = new Color(199,187,188);
+        Font buttonFont = new Font ("Bookman Old Style", Font.ITALIC | Font.BOLD, 12);
 
         JButton accept = new JButton ("Accept");
-        accept.addActionListener((ActionEvent e)-> {
+        accept.setBackground(buttonColor);
+        accept.setFont(buttonFont);
+        accept.addActionListener((ActionEvent e)->
+        {
             controller.AddRecipeToCalendar(w, placeOfDay, suggestedRecipe);
+            // if the user accepts the suggestion the addRecipeToCalendar method in the controller is called which adds the
+            // recipe to the day in question and then the calendar is updated
             controller.mainWindow.UpdateCalendar();
             dispose();
         });
 
         JButton newSuggestion = new JButton ("New suggestion");
-        newSuggestion.addActionListener((ActionEvent e)-> {
-            controller.constructSuggestionWindow(controller.suggestionList.removeFirst().getName(), w, placeOfDay);
+        newSuggestion.setBackground(buttonColor);
+        newSuggestion.setFont(buttonFont);
+        newSuggestion.addActionListener((ActionEvent e)->
+        {
+            if(!controller.suggestionList.isEmpty())
+                controller.constructSuggestionWindow(controller.suggestionList.removeFirst().getName(), w, placeOfDay);
+            else
+                controller.constructNoSuggestion();
+            // if the user clicks the "new suggestion" button the program will suggested a new recipe that fulfills the same
+            // category 1 and 2 criteria that the user has already entered. As such the the same window is constructed again
+            // suggesting the recipe that is next in the suggestion list. If the suggestion list is empty the window NoSuggestion
+            // will be constructed
             dispose();
         });
 
         JButton cancel = new JButton ("Cancel");
+        cancel.setBackground(buttonColor);
+        cancel.setFont(buttonFont);
         cancel.addActionListener((ActionEvent e)-> dispose());
 
 
@@ -49,6 +69,8 @@ public class SuggestionWindow extends JFrame
                                 .addComponent(cancel)
                                 .addComponent(newSuggestion)));
 
+        Color backgroundColor = new Color(243,216, 209);
+        getContentPane().setBackground(backgroundColor);
         setVisible(true);
         pack();
     }

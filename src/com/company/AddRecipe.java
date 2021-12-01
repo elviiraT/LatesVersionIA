@@ -13,22 +13,25 @@ public class AddRecipe extends JFrame
     public AddRecipe(Controller controller)
     {
         this.controller = controller;
+        Color backgroundColor = new Color(243,216, 209);
+        getContentPane().setBackground(backgroundColor);
         GroupLayout layout = new GroupLayout(getContentPane ());
         getContentPane ().setLayout (layout);
 
-        enterName = new JLabel("Enter the name of the recipe");
-        enterName.setFont(new Font ("Calibri", Font.BOLD, 20));
+        JLabel enterName = new JLabel("Enter the name of the recipe");
+        enterName.setFont(new Font("Bookman Old Style", Font.PLAIN, 18));
 
-        name = new JTextField(15);
-        name.getDocument().addDocumentListener(new DocumentListener(){
+        JTextField name = new JTextField(15);
+        name.setBackground(new Color(240, 228, 215));
+        name.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) { warn(); }
             public void removeUpdate(DocumentEvent e) { warn(); }
             public void insertUpdate(DocumentEvent e) { warn(); }
-            public void warn(){ n = name.getText(); }});
+            public void warn(){ enteredName = name.getText(); }});
 
 
-        chooseCategory1 = new JLabel("Choose the 1st category");
-        chooseCategory1.setFont(new Font ("Calibri", Font.BOLD, 20));
+        JLabel chooseCategory1 = new JLabel("Choose the 1st category");
+        chooseCategory1.setFont(new Font("Bookman Old Style", Font.PLAIN, 18));
 
         ActionListener defineCat1 = new ActionListener()
         {
@@ -39,15 +42,20 @@ public class AddRecipe extends JFrame
             }
         };
 
-        chicken = new JRadioButton("chicken");
+        JRadioButton chicken = new JRadioButton("chicken");
+        chicken.setBackground(backgroundColor);
         chicken.addActionListener(defineCat1);
-        meat = new JRadioButton("meat");
+        JRadioButton meat = new JRadioButton("meat");
+        meat.setBackground(backgroundColor);
         meat.addActionListener(defineCat1);
-        fish = new JRadioButton("fish");
+        JRadioButton fish = new JRadioButton("fish");
+        fish.setBackground(backgroundColor);
         fish.addActionListener(defineCat1);
-        vegetable = new JRadioButton("vegetable");
+        JRadioButton vegetable = new JRadioButton("vegetable");
+        vegetable.setBackground(backgroundColor);
         vegetable.addActionListener(defineCat1);
-        other1 = new JRadioButton("other");
+        JRadioButton other1 = new JRadioButton("other");
+        other1.setBackground(backgroundColor);
         other1.addActionListener(defineCat1);
         ButtonGroup bg1 = new ButtonGroup();
         bg1.add(chicken);
@@ -57,8 +65,8 @@ public class AddRecipe extends JFrame
         bg1.add(other1);
 
 
-        chooseCategory2 = new JLabel("Choose the 2nd category");
-        chooseCategory2.setFont(new Font ("Calibri", Font.BOLD, 20));
+        JLabel chooseCategory2 = new JLabel("Choose the 2nd category");
+        chooseCategory2.setFont(new Font("Bookman Old Style", Font.PLAIN, 18));
 
         ActionListener defineCat2 = new ActionListener()
         {
@@ -69,17 +77,23 @@ public class AddRecipe extends JFrame
             }
         };
 
-        soup = new JRadioButton("soup");
+        JRadioButton soup = new JRadioButton("soup");
+        soup.setBackground(backgroundColor);
         soup.addActionListener(defineCat2);
-        pasta = new JRadioButton("pasta");
+        JRadioButton pasta = new JRadioButton("pasta");
+        pasta.setBackground(backgroundColor);
         pasta.addActionListener(defineCat2);
-        salad = new JRadioButton("salad");
+        JRadioButton salad = new JRadioButton("salad");
+        salad.setBackground(backgroundColor);
         salad.addActionListener(defineCat2);
-        dessert = new JRadioButton("dessert");
+        JRadioButton dessert = new JRadioButton("dessert");
+        dessert.setBackground(backgroundColor);
         dessert.addActionListener(defineCat2);
-        pastries = new JRadioButton("pastries");
+        JRadioButton pastries = new JRadioButton("pastries");
+        pastries.setBackground(backgroundColor);
         pastries.addActionListener(defineCat2);
-        other2 = new JRadioButton("other");
+        JRadioButton other2 = new JRadioButton("other");
+        other2.setBackground(backgroundColor);
         other2.addActionListener(defineCat2);
         ButtonGroup bg2 = new ButtonGroup();
         bg2.add(soup);
@@ -89,8 +103,12 @@ public class AddRecipe extends JFrame
         bg2.add(pastries);
         bg2.add(other2);
 
+        Color buttonColor = new Color(199,187,188);
+        Font buttonFont = new Font ("Bookman Old Style", Font.ITALIC | Font.BOLD, 12);
 
-        image = new JButton("add image");
+        JButton image = new JButton("add image");
+        image.setBackground(buttonColor);
+        image.setFont(buttonFont);
         image.addActionListener((ActionEvent e)->
         {
                JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
@@ -105,13 +123,32 @@ public class AddRecipe extends JFrame
 
 
 
-        save = new JButton("Save");
+        JButton save = new JButton("Save");
+        save.setBackground(buttonColor);
+        save.setFont(buttonFont);
         save.addActionListener((ActionEvent e) ->
                 {
-                    //Make an algorithm that checks whether there already is Recipe with that name
-                    controller.AddRecipeToProgram(n, cat1, cat2, controller.createImageFile(n, originalImagePath));
-                    dispose();
-                    //calls method from controller that creates a new Recipe object and stores it in AllRecipes
+                    if (recipeName!=null && cat1 !=null && cat2 !=null && originalImagePath !=null)
+                    {
+                        boolean exist = controller.CheckIfRecipeNameExists(enteredName);
+                        // method in controller class is called which returns true if the
+                        if (exist) {
+                            int num = 1;
+                            while (exist) {
+                                recipeName = enteredName + num;
+                                if (!controller.CheckIfRecipeNameExists(recipeName))
+                                    exist = false;
+                                else
+                                    num++;
+                            }
+                        } else
+                            recipeName = enteredName;
+                        controller.AddRecipeToProgram(recipeName, cat1, cat2, controller.createImageFile(recipeName, originalImagePath));
+                        dispose();
+                        // calls method from controller that creates a new Recipe object and stores it in AllRecipes
+                    }
+                    else
+                        controller.constructMissingInformation();
                 });
 
         layout.setAutoCreateGaps(true);
@@ -164,32 +201,16 @@ public class AddRecipe extends JFrame
 
 
 
+
+
         setSize(800,500);
         pack();
         setVisible(true);
     }
-    private String n;
+    private String recipeName;
+    private String enteredName;
     private String cat1;
     private String cat2;
     private String originalImagePath;
-
-
     private Controller controller;
-    private JLabel enterName;
-    private JTextField name;
-    private JLabel chooseCategory1;
-    private JLabel chooseCategory2;
-    private JRadioButton chicken;
-    private JRadioButton meat;
-    private JRadioButton fish;
-    private JRadioButton vegetable;
-    private JRadioButton other1;
-    private JRadioButton soup;
-    private JRadioButton pasta;
-    private JRadioButton salad;
-    private JRadioButton dessert;
-    private JRadioButton pastries;
-    private JRadioButton other2;
-    private JButton image;
-    private JButton save;
 }

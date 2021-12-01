@@ -1,16 +1,15 @@
 package com.company;
+
 import javax.swing.*;
 import java.awt.*;
 
-
-
-public class NoSuggestions extends JFrame
+public class MissingInformation extends JFrame
 {
-    public NoSuggestions(Controller controller)
+    public MissingInformation(Controller controller)
     {
         this.controller = controller;
-        JLabel text = new JLabel("No available recipe");
-        text.setFont(new Font ("Bookman Old Style", Font.PLAIN, 18));
+        JLabel text = new JLabel("Enter all information");
+        text.setFont(new Font("Bookman Old Style", Font.PLAIN, 18));
 
         JPanel panel = new JPanel();
         FlowLayout layout = new FlowLayout();
@@ -19,10 +18,11 @@ public class NoSuggestions extends JFrame
         panel.add(text);
         add(panel);
 
-        Color backgroundColor = new Color(243,216, 209);
+        Color backgroundColor = new Color(243, 216, 209);
         panel.setBackground(backgroundColor);
         setVisible(true);
-        setSize(250,150);
+        setSize(250, 150);
     }
+
     private Controller controller;
 }

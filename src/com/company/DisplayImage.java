@@ -14,28 +14,26 @@ public class DisplayImage
         {
             this.controller = controller;
             BufferedImage img= ImageIO.read(new File(imagePath));
-            int finalh = 700;
-            int finalw = 1200;
             // resizing the image
             int w = img.getWidth();
             int h = img.getHeight();
+            int finalh = 600;
+            int finalw =  finalh *  w / h;
             BufferedImage dimg = new BufferedImage(finalw, finalh, img.getType());
             Graphics2D g = dimg.createGraphics();
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                     RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g.drawImage(img, 0, 0, finalw, finalh, 0, 0, w, h, null);
-            g.dispose();
-
+            g.drawImage(img, 0, 0, finalw, finalh, null);
 
             ImageIcon icon=new ImageIcon(dimg);
             JFrame frame=new JFrame();
             frame.setLayout(new FlowLayout());
-            frame.setSize(finalw,finalh);
             JLabel lbl=new JLabel();
             lbl.setIcon(icon);
+            lbl.setSize (finalw, finalh);
             frame.add(lbl);
+            frame.pack ();
             frame.setVisible(true);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
-        private Controller controller;
+    private Controller controller;
 }
