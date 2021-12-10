@@ -18,41 +18,34 @@ public class EnterNameOfRecipe extends JFrame
 
         JLabel text = new JLabel("Enter the name of the recipe");
         text.setFont(new Font ("Bookman Old Style", Font.PLAIN, 18));
-        recipe = new JTextField();
-        recipe.setBackground(new Color(240, 228, 215));
+        //recipe = new JTextField();
+        //recipe.setBackground(new Color(240, 228, 215));
 
-        popup = new JPopupMenu();
-        JMenu subMenu = new JMenu("m");
-        subMenu.add("m1");
-        subMenu.add("m2");
-
-// 3. Finally, add the sub-menu and item to the popup
-        popup.add(subMenu);
-        popup.add("n");
-
-        allRecipes = new LinkedList();
+        allRecipes = new String [controller.allRecipes.size()];
         for (int x = 0; x < controller.allRecipes.size(); x++)
-            allRecipes.add(controller.allRecipes.get(x).getName());
-        model = new DefaultListModel<>();
-        searchedRecipes = new JList();
+            allRecipes[x] = controller.allRecipes.get(x).getName();
+        defaultModel = new DefaultComboBoxModel(allRecipes);
 
+        recipe = new JComboBox(defaultModel);
+        recipe.setEditable(true);
+        recipe.setSelectedItem(null);
+        //JScrollPane scroller = new JScrollPane(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        //recipe.addItem(scroller);
 
-        recipe.addKeyListener(new KeyAdapter()
+        JTextField editor = (JTextField) recipe.getEditor().getEditorComponent();
+
+        editor.addKeyListener(new KeyAdapter()
         {
             public void keyReleased(KeyEvent evt)
             {
-                recipeName = recipe.getText();
+                search = editor.getText();
                 searchTxtKeyReleased(evt);
             }
         });
-       //         getDocument().addDocumentListener(new DocumentListener(){
-       //     public void changedUpdate(DocumentEvent e) { warn(); }
-       //     public void removeUpdate(DocumentEvent e) { warn(); }
-       //     public void insertUpdate(DocumentEvent e) { warn(); }
-       //     public void warn()
-       //     {
-       //         RecipeName = recipe.getText();
-       //     }});
+
+        recipe.addActionListener((ActionEvent e)-> recipeName = (String)recipe.getSelectedItem());
+
+
 
 
         JButton add = new JButton("Add");
@@ -89,39 +82,42 @@ public class EnterNameOfRecipe extends JFrame
 
     public void searchTxtKeyReleased(KeyEvent e)
     {
-
-        if (!recipeName.equals(""))
+        if (!search.equals(""))
         {
-            int length = recipeName.length();
-            for (int i = 0; i < allRecipes.size(); i++)
+            int length = search.length();
+            int numberOfSwaps = 0;
+            String temporary;
+            for (int i = 0; i < allRecipes.length; i++)
             // iterates through all the recipes
             {
-                String r = allRecipes.get(i);
+                String r = allRecipes[i];
                 if (r.length() >= length) {
                     String checkIfSame = r.substring(0, length).toLowerCase();
                     // creates a substring of the string at index i which has the length of the search term
-                    if (recipeName.toLowerCase().equals(checkIfSame))
-                    // if substring and the search term are equal the string is added to the filtered items list
-                    // and the index of that string is stored to the index array list
-                    {
-                        model.addElement(r);
+                    if (search.toLowerCase().equals(checkIfSame)) {
+                        temporary = allRecipes[i];
+                        allRecipes[i] = allRecipes[numberOfSwaps];
+                        allRecipes[numberOfSwaps] = temporary;
+                        numberOfSwaps++;
                     }
                 }
             }
-            searchedRecipes.setModel(model);
-
-            recipe.add(popup);
-            recipe.setComponentPopupMenu(popup);
-            //recipe.setInheritsPopupMenu(true);
-
+            DefaultComboBoxModel sorted = new DefaultComboBoxModel(allRecipes);
+            recipe.setModel(sorted);
+            recipe.setSelectedItem(search);
+            recipe.showPopup();
         }
+        else
+            {
+            recipe.setModel(defaultModel);
+            recipe.showPopup();
+            }
     }
 
-    private Controller controller;
-    private LinkedList <String>  allRecipes;
-    private DefaultListModel<String> model;
-    private JList searchedRecipes;
-    private JPopupMenu popup;
-    private JTextField recipe;
     private String recipeName;
+    private Controller controller;
+    private JComboBox recipe;
+    private DefaultComboBoxModel defaultModel;
+    private String search;
+    private String[] allRecipes;
 }

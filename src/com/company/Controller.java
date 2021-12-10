@@ -95,34 +95,41 @@ public class Controller implements Serializable
     // and adds the data from the weeks to the pastData list
     {
         int currentWeekNumber = now.get(Calendar.WEEK_OF_YEAR);
-        if(weeks[1].getWeekNumber() == currentWeekNumber)
-            // if the week number of the Current week in the serialized data is equal to the currentWeekNumber the method returns all the serialized weeks
-            return weeks;
-        else if (weeks[2].getWeekNumber() == currentWeekNumber)
+        if (weeks!=null) {
+            if (weeks[1].getWeekNumber() == currentWeekNumber)
+                // if the week number of the Current week in the serialized data is equal to the currentWeekNumber the method returns all the serialized weeks
+                return weeks;
+            else if (weeks[2].getWeekNumber() == currentWeekNumber)
             // if the week number of the Next week is equal to currentWeekNumber the method returns a new Week array with the Next week in the place of
             // the Current week and the Current week in the place of the past week, and in the place of the next week
             // it creates a new Week object
-        {
-            AddingToPastDataList(pastData, weeks[0]);
-            return new Week[] {weeks[1], weeks[2], new Week(WeekType.Next)};
-        }
-        else if (weeks[2].getWeekNumber() == currentWeekNumber-1)
+            {
+                AddingToPastDataList(pastData, weeks[0]);
+                weeks[1].changeWeekType(WeekType.Past);
+                weeks[2].changeWeekType(WeekType.Current);
+                return new Week[]{weeks[1], weeks[2], new Week(WeekType.Next)};
+            } else if (weeks[2].getWeekNumber() == currentWeekNumber - 1)
             // if the week number of the Week at the index 2 (so the Next week in the calendar) is equal to
             // to currentWeekNumber-1 the method return a new Week array with the Next week in place of the past week
             // and in place of the Current and Next week it creates a new Week object
-        {
-            AddingToPastDataList(pastData, weeks[1]);
-            AddingToPastDataList(pastData, weeks[0]);
-            return new Week[]{weeks[2], new Week(WeekType.Current), new Week(WeekType.Next)};
-        }
-        else
+            {
+                AddingToPastDataList(pastData, weeks[1]);
+                AddingToPastDataList(pastData, weeks[0]);
+                // The newest data has to be added first because the oldest data needs to be at the beginning of the pastData list
+                // for the suggestion method
+                weeks[2].changeWeekType(WeekType.Past);
+                //Change the Next weekType to Past weekType
+                return new Week[]{weeks[2], new Week(WeekType.Current), new Week(WeekType.Next)};
+            } else
             // otherwise it returns a new Week array with new Week objects
-        {
-            AddingToPastDataList(pastData, weeks[2]);
-            AddingToPastDataList(pastData, weeks[1]);
-            AddingToPastDataList(pastData, weeks[0]);
-            return new Week[] {new Week(WeekType.Past), new Week(WeekType.Current), new Week(WeekType.Next)};
+            {
+                AddingToPastDataList(pastData, weeks[2]);
+                AddingToPastDataList(pastData, weeks[1]);
+                AddingToPastDataList(pastData, weeks[0]);
+                return new Week[]{new Week(WeekType.Past), new Week(WeekType.Current), new Week(WeekType.Next)};
+            }
         }
+        return new Week[]{new Week(WeekType.Past), new Week(WeekType.Current), new Week(WeekType.Next)};
     }
 
     public void AddingToPastDataList (LinkedList <Recipe> list, Week week)

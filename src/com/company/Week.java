@@ -38,6 +38,11 @@ public class Week implements Serializable
         return type;
     }
 
+    public void changeWeekType(WeekType newType)
+    {
+        this.type = newType;
+    }
+
     public int getWeekNumber()
     {
         return weekNumber;

@@ -112,13 +112,13 @@ public class AddRecipe extends JFrame
         image.addActionListener((ActionEvent e)->
         {
                JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-               FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG & GIF Images", "jpg", "gif", "png");
-                chooser.setFileFilter(filter);
-                int returnVal = chooser.showOpenDialog(this);
-                if(returnVal == JFileChooser.APPROVE_OPTION)
-                {
-                    originalImagePath = chooser.getSelectedFile().getPath();
-                }
+               FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG, GIF Images,MS Word file(.docx) & Pdf file(.pdf)", "jpg", "gif", "png", "docx", "pdf");
+               chooser.setFileFilter(filter);
+               int returnVal = chooser.showOpenDialog(this);
+               if(returnVal == JFileChooser.APPROVE_OPTION)
+               {
+                   originalImagePath = chooser.getSelectedFile().getPath();
+               }
         });
 
 
@@ -128,7 +128,7 @@ public class AddRecipe extends JFrame
         save.setFont(buttonFont);
         save.addActionListener((ActionEvent e) ->
                 {
-                    if (recipeName!=null && cat1 !=null && cat2 !=null && originalImagePath !=null)
+                    if (enteredName!=null && cat1 !=null && cat2 !=null && originalImagePath !=null)
                     {
                         boolean exist = controller.CheckIfRecipeNameExists(enteredName);
                         // method in controller class is called which returns true if the
