@@ -9,9 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 
-public class MainWindow extends JFrame
+public class CalendarView extends JFrame
 {
-    public MainWindow (Controller controller, String title,Week w)
+    public CalendarView(Controller controller, String title, Week w)
     {
         this.controller = controller;
         // application data: list of lists

@@ -23,7 +23,7 @@ public class SuggestionWindow extends JFrame
             controller.AddRecipeToCalendar(w, placeOfDay, suggestedRecipe);
             // if the user accepts the suggestion the addRecipeToCalendar method in the controller is called which adds the
             // recipe to the day in question and then the calendar is updated
-            controller.mainWindow.UpdateCalendar();
+            controller.calendarView.UpdateCalendar();
             dispose();
         });
 

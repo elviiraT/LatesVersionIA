@@ -1,7 +1,5 @@
 package com.company;
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,21 +17,9 @@ public class Controller implements Serializable
         weeks = checksIfSerializedWeeksAreStillRelevant(Serialization.ReadWeeks());
         pastData = Serialization.ReadRecipesList(Serialization.pastData);
         allRecipes = Serialization.ReadRecipesList(Serialization.allRecipes);
-        mainWindow = new MainWindow(this, "Current Week", weeks[1]);   //creates the mainWindow with the current week
+        calendarView = new CalendarView(this, "Current Week", weeks[1]);   //creates the mainWindow with the current week
         recipesPath = System.getProperty("user.home") + "/recipeImages/"; // the path name to the directory where the image files will be stored
         new File(recipesPath).mkdirs(); // creates a directory where the image files of the recipes will be stored
-    }
-
-
-    public DisplayImage constructDisplayImage(String imagePath)
-    {
-        DisplayImage window = null;
-        try {
-            window = new DisplayImage(this,imagePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return window;
     }
 
     public AddRecipe constructAddRecipe()
@@ -48,9 +34,9 @@ public class Controller implements Serializable
         return window;
     }
 
-    public EnterNameOfRecipe constructEnterNameOfRecipe(Week w, int num)
+    public AddRecipeToCalendar constructEnterNameOfRecipe(Week w, int num)
     {
-        EnterNameOfRecipe window = new EnterNameOfRecipe(this,w, num);
+        AddRecipeToCalendar window = new AddRecipeToCalendar(this,w, num);
         return window;
     }
 
@@ -78,9 +64,9 @@ public class Controller implements Serializable
         return window;
     }
 
-    public MainWindow constructMainWindow(String title, Week week)
+    public CalendarView constructMainWindow(String title, Week week)
     {
-        MainWindow window = new MainWindow(this, title, week);
+        CalendarView window = new CalendarView(this, title, week);
         return window;
     }
 
@@ -148,18 +134,6 @@ public class Controller implements Serializable
 
 
 
-    public void openImageOfSelectedRecipe(String nameOfSearchedRecipe)
-    // method that opens the image file of the recipe which has its name passed in the parameters
-    {
-        for (int i = 0; i < allRecipes.size(); i++)
-        {
-            if (nameOfSearchedRecipe.equals(allRecipes.get(i).getName()))
-            {
-                constructDisplayImage(allRecipes.get(i).getImage());
-            }
-        }
-    }
-
     public void openImageOfSelectedRecipe2(String nameOfSearchedRecipe) throws IOException
     // method that opens the image file of the recipe which has its name passed in the parameters
     {
@@ -186,7 +160,7 @@ public class Controller implements Serializable
             {
                 w.getDailyRecipe(day).add(allRecipes.get(i));
                 //if a matching name is found, the recipe is added to the list of recipes of the given day of the given week
-                mainWindow.UpdateCalendar();
+                calendarView.UpdateCalendar();
             }
         }
     }
@@ -195,7 +169,7 @@ public class Controller implements Serializable
     // removes the recipe at the given index of the given week and day of week
     {
         w.getDailyRecipe(placeOfDay).remove(indexOfRecipe);
-        mainWindow.UpdateCalendar();
+        calendarView.UpdateCalendar();
     }
 
     public void AddRecipeToProgram(String nameOfRecipe, String category1, String category2, String originalPathOfImage)
@@ -354,7 +328,7 @@ public class Controller implements Serializable
 
 
 
-    public MainWindow mainWindow;
+    public CalendarView calendarView;
     public Week[] weeks;
     public LinkedList<Recipe> pastData;
     public LinkedList<Recipe> allRecipes;

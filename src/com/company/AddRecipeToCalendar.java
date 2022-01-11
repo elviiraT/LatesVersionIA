@@ -1,16 +1,14 @@
 package com.company;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
-public class EnterNameOfRecipe extends JFrame
+
+public class AddRecipeToCalendar extends JFrame
 {
-    public EnterNameOfRecipe(Controller controller, Week w, int num)
+    public AddRecipeToCalendar(Controller controller, Week w, int num)
     {
         this.controller = controller;
         GroupLayout layout = new GroupLayout(getContentPane ());
@@ -29,8 +27,9 @@ public class EnterNameOfRecipe extends JFrame
         recipe = new JComboBox(defaultModel);
         recipe.setEditable(true);
         recipe.setSelectedItem(null);
-        //JScrollPane scroller = new JScrollPane(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        //recipe.addItem(scroller);
+
+        JScrollBar pane = new JScrollBar();
+        recipe.add(pane);
 
         JTextField editor = (JTextField) recipe.getEditor().getEditorComponent();
 
@@ -55,7 +54,7 @@ public class EnterNameOfRecipe extends JFrame
         add.addActionListener((ActionEvent e) ->
         {
             controller.AddRecipeToCalendar(w,num,recipeName);
-            controller.mainWindow.UpdateCalendar();
+            controller.calendarView.UpdateCalendar();
             dispose();
         });
 
