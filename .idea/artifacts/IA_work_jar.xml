@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="IA work:jar">
+  <artifact type="jar" name="IA work:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/IA_work_jar</output-path>
     <root id="archive" name="IA work.jar">
       <element id="module-output" name="IA work" />

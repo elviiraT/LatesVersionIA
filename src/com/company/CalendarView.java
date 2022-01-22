@@ -14,28 +14,22 @@ public class CalendarView extends JFrame
     public CalendarView(Controller controller, String title, Week w)
     {
         this.controller = controller;
+
         // application data: list of lists
-
-
         recipeList = new LinkedList<>();
-
         for (int x = 0; x < 7; x++)
         {
             recipeList.add(w.getDailyRecipe(x));// gets the recipes of the Weeks w DailyRecipes Recipes list for each day
         }
         String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
-        // MVC-style table model that will return properties of data shown
-        // in table; each list is shown in the column of the table
         tableModel = new AbstractTableModel()
         {
-            public int getColumnCount() {
-                return recipeList.size();
-            }
-
+            public int getColumnCount() {return recipeList.size();}
             public int getRowCount() {
                 int max = 1;
-                // The table always has at least one row, if the dailyRecipe does not contain recipes the text "Click to select" is added to the first row
+                // The table always has at least one row, if the dailyRecipe does not
+                // contain recipes the text "Click to select" is added to the first row
                 for (List<Recipe> list : recipeList)
                     max = Math.max(max, list.size());
                 return max;
@@ -51,7 +45,6 @@ public class CalendarView extends JFrame
                 else
                     return null;
             }
-
             public String getColumnName(int column) {
                 return daysOfWeek[column];
             }
@@ -84,17 +77,17 @@ public class CalendarView extends JFrame
         JMenuItem suggest = new JMenuItem("Suggest a recipe");
         suggest.setFont(new Font ("Bookman Old Style", Font.ITALIC, 15));
         suggest.setBackground(tableColor);
-        suggest.addActionListener((ActionEvent e)-> SuggestARecipe(w));
+        suggest.addActionListener((ActionEvent e)-> suggestARecipe(w));
 
         JMenuItem view = new JMenuItem("View a recipe");
         view.setFont(new Font ("Bookman Old Style", Font.ITALIC, 15));
         view.setBackground(tableColor);
-        view.addActionListener((ActionEvent e) -> ViewImage(w));
+        view.addActionListener((ActionEvent e) -> viewImage(w));
 
         JMenuItem delete = new JMenuItem("Delete a recipe");
         delete.setFont(new Font ("Bookman Old Style", Font.ITALIC, 15));
         delete.setBackground(tableColor);
-        delete.addActionListener((ActionEvent e) -> RemoveData(w));
+        delete.addActionListener((ActionEvent e) -> removeData(w));
 
         calendar.add(add);
         calendar.add(suggest);
@@ -132,14 +125,17 @@ public class CalendarView extends JFrame
         JButton left = new JButton("<");
         left.addActionListener((ActionEvent e) ->
         {
-            if (text.getText().equals(c))
+            // changes the calendar view the preceding week
+            // checks whether the user is in the current or next calendar view so it constructs
+            // the right preceding calendar view
+            if (text.getText().equals(current))
             {
-                controller.constructMainWindow(p, controller.weeks[0]);
+                controller.constructCalendarView(past, controller.weeks[0]);
                 dispose();
             }
-            else if (text.getText().equals(n))
+            else if (text.getText().equals(next))
             {
-                controller.constructMainWindow(c, controller.weeks[1]);
+                controller.constructCalendarView(current, controller.weeks[1]);
                 dispose();
             }
         });
@@ -151,14 +147,17 @@ public class CalendarView extends JFrame
         right.setBounds(100, 100, 200, 30);
         right.addActionListener((ActionEvent e) ->
         {
-            if (text.getText().equals(c))
+            // changes the calendar view the following week
+            // checks whether the user is in the past or current calendar view so it constructs
+            // the right following calendar view
+            if (text.getText().equals(current))
             {
-                controller.constructMainWindow(n, controller.weeks[2]);
+                controller.constructCalendarView(next, controller.weeks[2]);
                 dispose();
             }
-            else if (text.getText().equals(p))
+            else if (text.getText().equals(past))
             {
-                controller.constructMainWindow(c, controller.weeks[1]);
+                controller.constructCalendarView(current, controller.weeks[1]);
                 dispose();
             }
         });
@@ -193,13 +192,9 @@ public class CalendarView extends JFrame
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e)
             {
-                controller.SaveData();
-            }
-            /*public void windowClosed(WindowEvent e)
-            {
-                System.exit(0);
-            }*/
-        });
+                //saves the data when the calendarView window is closed
+                controller.saveData();
+            }});
 
 
         Color backgroundColor = new Color(243,216, 209);
@@ -217,13 +212,13 @@ public class CalendarView extends JFrame
         // returns -1 if none selected
         if (column >= 0)
         {
-            controller.constructEnterNameOfRecipe(w, column);
-            // passes the week and the place of the day in question to the constructEnterNameOfRecipe so it the method
-            // knows where to add the recipe
+            controller.constructAddRecipeToCalendar(w, column);
+            // passes the week and the place of the day in question to the constructAddRecipeToCalendar so it
+            // knows where to add the recipe that will be entered by the user
         }
     }
 
-    private void RemoveData (Week w)
+    private void removeData (Week w)
     {
         int column = table.getSelectedColumn();
         // gets the selected column of the table since it corresponds to the place of
@@ -231,39 +226,40 @@ public class CalendarView extends JFrame
         int row = table.getSelectedRow();
         // gets the selected row since it corresponds to the index of the selected recipe in the
         // linked list of that day
-        controller.RemoveRecipeFromCalendar(w,column,row);
+        controller.removeRecipeFromCalendar(w,column,row);
         // calls a method in controller that removes the selected recipe
         // week, row and column are passed in the parameters of this method to situate the place of the
         // recipe in question
-        UpdateCalendar();
+        updateCalendar();
     }
 
-    private void ViewImage(Week w)
+    private void viewImage(Week w)
+    // opens image file by calling a method in the Controller class
     {
         int column = table.getSelectedColumn();
         int row = table.getSelectedRow();
         Recipe r = w.getDailyRecipe(column).get(row);
         try {
-            controller.openImageOfSelectedRecipe2(r.getName());
+            controller.openImageOfSelectedRecipe(r.getName());
+            // calls method in the Controller class which opens the image file of the selected recipe
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        //controller.constructDisplayImage(r.getImage());
     }
 
-    private void SuggestARecipe(Week w)
+    private void suggestARecipe(Week w)
     // method that constructs the SuggestionSetups
     {
         int placeOfDay = table.getSelectedColumn();
         // the selected column identifies the place of the day in the week
         if (placeOfDay > -1)
             controller.constructSuggestionSetups(w, placeOfDay);
-            // when the SuggestionSetups window is created the week the place of the day are passed to it the parameters
+            // when the SuggestionSetups window is created the week and the place of the day are passed to it the parameters
             // of the method so that when the suggestion list is creates the past recipes can be identified
     }
 
 
-    public void UpdateCalendar()
+    public void updateCalendar()
     {
         tableModel.fireTableDataChanged ();
     }
@@ -271,9 +267,9 @@ public class CalendarView extends JFrame
     private Controller controller;
     private JTable table;
     private AbstractTableModel tableModel;
-    List<List<Recipe>> recipeList;// data is list of lists of strings
-    private final String p = "Past Week";
-    private final String c = "Current Week";
-    private final String n = "Next Week";
+    private List<List<Recipe>> recipeList;// data is list of lists of strings
+    private final String past = "Past Week";
+    private final String current = "Current Week";
+    private final String next = "Next Week";
 }
 

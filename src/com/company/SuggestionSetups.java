@@ -33,16 +33,19 @@ public class SuggestionSetups extends JFrame
         suggest.setFont(new Font ("Bookman Old Style", Font.ITALIC | Font.BOLD, 12));
         suggest.addActionListener((ActionEvent e)->
         {
-            Recipe r = controller.SuggestARecipe(selectedCategory1, selectedCategory2, w, placeOfDay);
+            Recipe r = controller.suggestARecipe(selectedCategory1, selectedCategory2, w, placeOfDay);
             // calls a method in the controller class by passing it the chosen categories by the user and
             // the place of the week to which the suggestion should be added and the place of the day to which
             // the recipe should be added
+            // This method then creates a list of the recipes that will be suggested
+            // then returns and removes the first element of that list
             if (r != null)
-                // if the recipe is not null the SuggestionWindow is created and the name of the suggested recipe is passed to the method
-                // The week and the place of the day are also passed to it so the recipe is then added to the right place the calendar
+                // if the recipe is not null the SuggestionWindow is created and the name of the suggested recipe is passed to the class
+                // The week and the place of the day are also passed to it so the recipe is then added to the right place in the calendar
                 controller.constructSuggestionWindow(r.getName(), w, placeOfDay);
 
             else
+                // in case the suggestion list is empty and the method returns null the NoSuggestion popup window is constructed
                 controller.constructNoSuggestion();
             dispose();
         });

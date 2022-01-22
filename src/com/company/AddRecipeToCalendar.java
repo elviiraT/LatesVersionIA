@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 
 public class AddRecipeToCalendar extends JFrame
 {
-    public AddRecipeToCalendar(Controller controller, Week w, int num)
+    public AddRecipeToCalendar(Controller controller, Week w, int day)
     {
         this.controller = controller;
         GroupLayout layout = new GroupLayout(getContentPane ());
@@ -16,9 +16,8 @@ public class AddRecipeToCalendar extends JFrame
 
         JLabel text = new JLabel("Enter the name of the recipe");
         text.setFont(new Font ("Bookman Old Style", Font.PLAIN, 18));
-        //recipe = new JTextField();
-        //recipe.setBackground(new Color(240, 228, 215));
 
+        // Creates a DefaultComboBoxModel with names of all the recipes entered in the program
         allRecipes = new String [controller.allRecipes.size()];
         for (int x = 0; x < controller.allRecipes.size(); x++)
             allRecipes[x] = controller.allRecipes.get(x).getName();
@@ -39,6 +38,8 @@ public class AddRecipeToCalendar extends JFrame
             {
                 search = editor.getText();
                 searchTxtKeyReleased(evt);
+                // calls method that sorts the string array in the DefaultComboBoxModel so the recipe names
+                // corresponding to the user's search are at the beginning of the list
             }
         });
 
@@ -53,8 +54,10 @@ public class AddRecipeToCalendar extends JFrame
         add.setFont(new Font ("Bookman Old Style", Font.ITALIC | Font.BOLD, 12));
         add.addActionListener((ActionEvent e) ->
         {
-            controller.AddRecipeToCalendar(w,num,recipeName);
-            controller.calendarView.UpdateCalendar();
+            controller.addRecipeToCalendar(w,day,recipeName);
+            // calls a method in the controller that adds the recipe to the day of the week the user
+            // has selected which are passed in the parameters of this class
+            controller.calendarView.updateCalendar();
             dispose();
         });
 
@@ -84,31 +87,35 @@ public class AddRecipeToCalendar extends JFrame
         if (!search.equals(""))
         {
             int length = search.length();
-            int numberOfSwaps = 0;
+            int numberOfSwaps = 0; // indicates to where a recipe should be swapped
             String temporary;
             for (int i = 0; i < allRecipes.length; i++)
             // iterates through all the recipes
             {
-                String r = allRecipes[i];
-                if (r.length() >= length) {
-                    String checkIfSame = r.substring(0, length).toLowerCase();
+                String recipe = allRecipes[i];
+                if (recipe.length() >= length) {
+                    String checkIfSame = recipe.substring(0, length).toLowerCase();
                     // creates a substring of the string at index i which has the length of the search term
-                    if (search.toLowerCase().equals(checkIfSame)) {
+                    if (search.toLowerCase().equals(checkIfSame))
+                        // if the string are equal it swaps the recipe at index i (the one corresponding to the search term)
+                        // and the recipe at index numberOfSwaps
+                    {
                         temporary = allRecipes[i];
                         allRecipes[i] = allRecipes[numberOfSwaps];
                         allRecipes[numberOfSwaps] = temporary;
                         numberOfSwaps++;
+                        // numberOfSwaps is increased by 1 so the next recipe will be swapped to the next index
                     }
                 }
             }
             DefaultComboBoxModel sorted = new DefaultComboBoxModel(allRecipes);
-            recipe.setModel(sorted);
+            recipe.setModel(sorted); // sets the new DefaultComboBoxModel
             recipe.setSelectedItem(search);
             recipe.showPopup();
         }
         else
             {
-            recipe.setModel(defaultModel);
+            recipe.setModel(defaultModel);//sets the DefaultModel if no search is made
             recipe.showPopup();
             }
     }

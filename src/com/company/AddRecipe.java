@@ -38,7 +38,7 @@ public class AddRecipe extends JFrame
             public void actionPerformed(ActionEvent actionEvent)
             {
             JRadioButton button = (JRadioButton) actionEvent.getSource();
-            cat1 = button.getText();
+            category1 = button.getText(); //stores the option chosen by the user
             }
         };
 
@@ -73,7 +73,7 @@ public class AddRecipe extends JFrame
             public void actionPerformed(ActionEvent actionEvent)
             {
                 JRadioButton button = (JRadioButton) actionEvent.getSource();
-                cat2 = button.getText();
+                category2 = button.getText(); //stores the option chosen by the user
             }
         };
 
@@ -111,13 +111,17 @@ public class AddRecipe extends JFrame
         image.setFont(buttonFont);
         image.addActionListener((ActionEvent e)->
         {
+               // Enables the user to select the image file
                JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-               FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG, GIF Images,MS Word file(.docx) & Pdf file(.pdf)", "jpg", "gif", "png", "docx", "pdf");
+               FileNameExtensionFilter filter = new FileNameExtensionFilter
+                               ("JPG, PNG, GIF Images, Word file(.docx) & Pdf file(.pdf)"
+                                       , "jpg", "gif", "png", "docx", "pdf");
                chooser.setFileFilter(filter);
                int returnVal = chooser.showOpenDialog(this);
                if(returnVal == JFileChooser.APPROVE_OPTION)
                {
                    originalImagePath = chooser.getSelectedFile().getPath();
+                   //stores the pathname of the chosen file
                }
         });
 
@@ -128,27 +132,35 @@ public class AddRecipe extends JFrame
         save.setFont(buttonFont);
         save.addActionListener((ActionEvent e) ->
                 {
-                    if (enteredName!=null && cat1 !=null && cat2 !=null && originalImagePath !=null)
+                    if (enteredName!=null && category1 !=null && category2 !=null && originalImagePath !=null)
+                    // verifies that all fields have been entered
                     {
-                        boolean exist = controller.CheckIfRecipeNameExists(enteredName);
-                        // method in controller class is called which returns true if the
-                        if (exist) {
+                        boolean exist = controller.checkIfRecipeNameExists(enteredName);
+                        // method in controller class is called which returns true if the entered recipe name already
+                        // exists as the recipe name of another recipe
+                        if (exist)
+                            // if the name already exists a number will be added at the end of the name and it will be
+                            // checked again whether that name exists
+                        {
                             int num = 1;
-                            while (exist) {
+                            while (exist)
+                            // loops and adds a different number until the recipe name does not alreday exist
+                            {
                                 recipeName = enteredName + num;
-                                if (!controller.CheckIfRecipeNameExists(recipeName))
+                                if (!controller.checkIfRecipeNameExists(recipeName))
                                     exist = false;
                                 else
                                     num++;
                             }
                         } else
-                            recipeName = enteredName;
-                        controller.AddRecipeToProgram(recipeName, cat1, cat2, controller.createImageFile(recipeName, originalImagePath));
+                            recipeName = enteredName; // if the entered name does not already exist it is not changed
+                        controller.addRecipeToProgram(recipeName, category1, category2, controller.createImageFile(recipeName, originalImagePath));
                         dispose();
                         // calls method from controller that creates a new Recipe object and stores it in AllRecipes
                     }
                     else
                         controller.constructMissingInformation();
+                    //if some field is missing constructs a popup window and the new recipe is not stored
                 });
 
         layout.setAutoCreateGaps(true);
@@ -208,9 +220,10 @@ public class AddRecipe extends JFrame
         setVisible(true);
     }
     private String recipeName;
-    private String enteredName;
-    private String cat1;
-    private String cat2;
+    // stores the enteredName that may have been altered by the program in case it already exist
+    private String enteredName; // stores the recipe name the user enters
+    private String category1;
+    private String category2;
     private String originalImagePath;
     private Controller controller;
 }

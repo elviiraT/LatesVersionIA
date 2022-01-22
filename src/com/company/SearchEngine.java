@@ -50,7 +50,7 @@ public class SearchEngine extends JFrame
             // ListSelectionListener that opens the image file of the selected recipe
             String selectedRecipe = name.getSelectedValue().toString();
             try {
-                controller.openImageOfSelectedRecipe2(selectedRecipe);
+                controller.openImageOfSelectedRecipe(selectedRecipe);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -106,7 +106,7 @@ public class SearchEngine extends JFrame
                                 .addComponent(cat2)));
 
 
-        mainPanel = new JPanel();
+        JPanel mainPanel = new JPanel();
         GroupLayout mainLayout = new GroupLayout(mainPanel);
         mainPanel.setLayout(mainLayout);
 
@@ -152,9 +152,9 @@ public class SearchEngine extends JFrame
     private void searchTxtKeyReleased(KeyEvent evt)
     {
         if (typeOfSearch.equals("name"))
-            // typeOfSearch stores the type of search that has been choosen by the user through the combobox
-            // it will define to which list (name, category 1 or category 2) the users search will match and
-            // which of the list will be filtered first
+            // typeOfSearch stores the type of search that has been chosen by the user through the combobox
+            // it will define to which list (name, category 1 or category 2) the user's search will be matched and
+            // according to which list the items will be filtered
         {
             searchFilter(search.getText(), name, allRecipesNames, cat1, allRecipesCat1, cat2, allRecipesCat2);
         }
@@ -172,12 +172,15 @@ public class SearchEngine extends JFrame
     private void searchFilter(String searchTerm, JList displayOfSearchedList, DefaultListModel<String> fullSearchedList,
                               JList displayOfSecondList, DefaultListModel<String> fullSecondList,
                               JList displayOfThirdList, DefaultListModel<String> fullThirdList)
-    // method that first filters all the 3 list at the same time according to the users search term
+    // method that first filters the list which is searched according to the user's search term
+    // then it calls a method which creates a filtered list for the 2 other lists
+    // finally if the user searches one of the category lists a method which groups the lists according to the
+    // options of the other list is called
     {
         DefaultListModel filteredItemsSearchedList = new DefaultListModel();
         // creates a new default list model that will only contain the elements corresponding to the search term
         ArrayList<Integer> indicesOfAddedRecipes = new ArrayList<>();
-        // creates an array list containing the indeces of all the recipes added to the filteredItemsSearchedList
+        // creates an array list containing the indices of all the recipes added to the filteredItemsSearchedList
         // which will enable to create the filtered items list of the two other lists
 
         if (!searchTerm.equals(""))
@@ -200,17 +203,22 @@ public class SearchEngine extends JFrame
                     }
                 }
             }
-            DefaultListModel filteredItemsSecondList = SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, fullSecondList);
-            DefaultListModel filteredItemsThirdList = SwitchingOtherListsAtTheSameTimeAsTheSearchedList(indicesOfAddedRecipes, fullThirdList);
-            // calls method that creates the filtered list for the 2 other lists using the arraylist with the indeces of the elements
+            DefaultListModel filteredItemsSecondList = switchingListsConcurrently(indicesOfAddedRecipes, fullSecondList);
+            DefaultListModel filteredItemsThirdList = switchingListsConcurrently(indicesOfAddedRecipes, fullThirdList);
+            // calls method that creates the filtered list for the 2 other lists using the arraylist with the indices of the elements
             // added to the already filtered list
             if (displayOfSearchedList.equals(cat1))
                 groupingRecipesIntoTheOptionsOfACategory(filteredItemsThirdList, displayOfThirdList,
                         filteredItemsSecondList, displayOfSecondList, filteredItemsSearchedList, displayOfSearchedList, 6);
+            // If searched list is category1 a method that groups the recipes according to category2 is called
+                // and then sets the filtered lists to the displayed lists is called
             else if (displayOfSearchedList.equals(cat2))
                 groupingRecipesIntoTheOptionsOfACategory(filteredItemsThirdList, displayOfThirdList,
                         filteredItemsSecondList, displayOfSecondList, filteredItemsSearchedList, displayOfSearchedList, 5);
+            // If searched list is category2 a method that groups the recipes according to category1
+                // and then sets the filtered lists to the displayed lists is called
             else
+            // If the searched list is name the filtered lists will be set to the displayed lists
                 {
                     displayOfSearchedList.setModel(filteredItemsSearchedList);
                     displayOfSecondList.setModel(filteredItemsSecondList);
@@ -218,7 +226,7 @@ public class SearchEngine extends JFrame
                 }
         }
         else
-            // if the search term is empty the default list models containing all of the recipes will be set
+            // if the search term is empty the default list models containing all recipes will be set
             // to the displayed lists
             {
             displayOfSearchedList.setModel(fullSearchedList);
@@ -227,10 +235,12 @@ public class SearchEngine extends JFrame
             }
     }
 
-   private DefaultListModel SwitchingOtherListsAtTheSameTimeAsTheSearchedList(ArrayList<Integer> indicesOfAddedRecipe, DefaultListModel<String> allRecipes)
+
+   private DefaultListModel switchingListsConcurrently(ArrayList<Integer> indicesOfAddedRecipe, DefaultListModel<String> allRecipes)
    {
-       DefaultListModel filteredItems = new DefaultListModel();
+       DefaultListModel filteredItems = new DefaultListModel(); // creates the new filtered list
        for (int x = 0; x < indicesOfAddedRecipe.size(); x++)
+       // loops through the array with the indices of the items that have to be added to the list and adds them
        {
            filteredItems.addElement(allRecipes.get(indicesOfAddedRecipe.get(x)));
        }
@@ -239,28 +249,34 @@ public class SearchEngine extends JFrame
 
 
 
-    private void groupingRecipesIntoTheOptionsOfACategory(DefaultListModel<String> ListToSort, JList displayOfSortedList, DefaultListModel secondList,
-                                                          JList displayOfSecondList, DefaultListModel thirdList, JList displayOfThirdList, int numberOfOptionInCategory)
+    private void groupingRecipesIntoTheOptionsOfACategory(DefaultListModel <String> ListToSort, JList displayOfSortedList, DefaultListModel secondList,
+                                                          JList displayOfSecondList, DefaultListModel thirdList, JList displayOfThirdList, int numberOfOptionsInCategory)
+            // Groups the recipes according to the options in ListToSort which may contain the options for category 1 or 2
     {
-        int startOfOption = 0;
-        for(int i = 0; i < numberOfOptionInCategory || i < ListToSort.size(); i++)
-            // will loop for ever cause i have not registered 6 recipes with different categories
+        int startOfOption = 0; // defines were a new option starts
+        for(int i = 0; i < numberOfOptionsInCategory || i < ListToSort.size(); i++)
+            // loop while there are options (5 for category 1 and 6 for category 2) or until the there are no more elements in ListToSort
         {
-            if(startOfOption < ListToSort.size())
+            if(startOfOption < ListToSort.size()) //checks that there are still elements to sort in ListToSort
             {
-                String option = ListToSort.get(startOfOption);
+                String option = ListToSort.get(startOfOption); //defines the option which will start at startOfOption
                 int placeToSwitch = startOfOption + 1;
                 for (int x = placeToSwitch; x < ListToSort.size(); x++)
                 {
                     if (ListToSort.get(x).equals(option))
+                        // compares element at index x to the option
+                        // if it is equal the element will be switched to PlaceToSwitch and 1 will be added to
+                        // PlaceToSwitch so the next element is switched to the next index
+                        // the same switching process will be done to all the lists (name, cat1 and cat2)
                     {
-                        SwitchingPlaceOfElement(ListToSort, x, placeToSwitch);
-                        SwitchingPlaceOfElement(secondList, x, placeToSwitch);
-                        SwitchingPlaceOfElement(thirdList, x, placeToSwitch);
+                        switchingPlaceOfElement(ListToSort, x, placeToSwitch);
+                        switchingPlaceOfElement(secondList, x, placeToSwitch);
+                        switchingPlaceOfElement(thirdList, x, placeToSwitch);
                         placeToSwitch++;
                     }
                 }
                 startOfOption = placeToSwitch;
+                // the start of a new option is at placeToSwitch once there are no more elements to be switched
             }
         }
         displayOfSortedList.setModel(ListToSort);
@@ -268,7 +284,8 @@ public class SearchEngine extends JFrame
         displayOfThirdList.setModel(thirdList);
     }
 
-    private void SwitchingPlaceOfElement(DefaultListModel<String> list, int currentPlace, int newPlace)
+    private void switchingPlaceOfElement(DefaultListModel<String> list, int currentPlace, int newPlace)
+    // switches the place of elements at index currentPlace and newPlace in list
     {
         String elementToSwitch = list.get(currentPlace);
         list.removeElementAt(currentPlace);
@@ -278,7 +295,6 @@ public class SearchEngine extends JFrame
 
 
 
-    private JPanel mainPanel;
     private Controller controller;
     private String typeOfSearch;
     private DefaultListModel allRecipesNames;

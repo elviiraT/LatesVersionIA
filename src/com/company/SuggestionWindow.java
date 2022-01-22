@@ -20,10 +20,10 @@ public class SuggestionWindow extends JFrame
         accept.setFont(buttonFont);
         accept.addActionListener((ActionEvent e)->
         {
-            controller.AddRecipeToCalendar(w, placeOfDay, suggestedRecipe);
+            controller.addRecipeToCalendar(w, placeOfDay, suggestedRecipe);
             // if the user accepts the suggestion the addRecipeToCalendar method in the controller is called which adds the
-            // recipe to the day in question and then the calendar is updated
-            controller.calendarView.UpdateCalendar();
+            // recipe to the day in question
+            controller.calendarView.updateCalendar();
             dispose();
         });
 
@@ -34,12 +34,12 @@ public class SuggestionWindow extends JFrame
         {
             if(!controller.suggestionList.isEmpty())
                 controller.constructSuggestionWindow(controller.suggestionList.removeFirst().getName(), w, placeOfDay);
+                // if the user clicks the "new suggestion" button the program will suggest a new recipe that fulfills the same
+                // category 1 and 2 criteria that the user has already entered. As such the same window is constructed again
+                // suggesting the recipe that is next in the already created suggestion list.
             else
                 controller.constructNoSuggestion();
-            // if the user clicks the "new suggestion" button the program will suggested a new recipe that fulfills the same
-            // category 1 and 2 criteria that the user has already entered. As such the the same window is constructed again
-            // suggesting the recipe that is next in the suggestion list. If the suggestion list is empty the window NoSuggestion
-            // will be constructed
+            // If the suggestion list is empty the window NoSuggestion will be constructed
             dispose();
         });
 
