@@ -14,9 +14,9 @@ public class Controller
     public Controller()
     {
         now = GregorianCalendar.getInstance();
-        weeks = checksIfSerializedWeeksAreStillRelevant(Serialization.readWeeks());
         pastData = Serialization.readRecipesList(Serialization.pastData);
         allRecipes = Serialization.readRecipesList(Serialization.allRecipes);
+        weeks = checksIfSerializedWeeksAreStillRelevant(Serialization.readWeeks());
         calendarView = new CalendarView(this, "Current Week", weeks[1]);
         //creates the calendarView with the current week
 
@@ -124,10 +124,10 @@ public class Controller
 
 
 
-    private void addingToPastDataList ( Week w)
+    private void addingToPastDataList (Week w)
     // adds the recipes contained in a Week object presented in the calendar to the pastData list
     {
-        for (int day = 1; day <= 6; day--)
+        for (int day = 1; day <= 6; day++)
             // loops from the first day of the week to the last one because the Recipes are added
             // at the beginning of the list and the most recent Recipes have to be at the beginning of the list
         {

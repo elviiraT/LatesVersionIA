@@ -33,7 +33,7 @@ public class Week implements Serializable
     public LinkedList<Recipe> getDailyRecipe(int i)
     // accessor to get the linked list of recipes of a day
     {
-        LinkedList<Recipe> day = daysList[i];
+        LinkedList<Recipe> day = dailyRecipes[i];
         return day;
     }
 
@@ -55,7 +55,7 @@ public class Week implements Serializable
 
     private int weekNumber;
     private WeekType type;
-    private LinkedList[] daysList = {new LinkedList<Recipe>(), new LinkedList<Recipe>(), new LinkedList<Recipe>(),
+    private LinkedList[] dailyRecipes = {new LinkedList<Recipe>(), new LinkedList<Recipe>(), new LinkedList<Recipe>(),
             new LinkedList<Recipe>(), new LinkedList<Recipe>(), new LinkedList<Recipe>(), new LinkedList<Recipe>()};
     // Each week object contains an array of linked lists that have the variable name daysList, this list contains a linked list
     // of Recipes for each day of the week, these linked lists contain the recipes that have been added to the day in question in the calendar

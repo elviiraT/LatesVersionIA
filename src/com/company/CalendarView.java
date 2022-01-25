@@ -15,7 +15,7 @@ public class CalendarView extends JFrame
     {
         this.controller = controller;
 
-        // application data: list of lists
+
         recipeList = new LinkedList<>();
         for (int x = 0; x < 7; x++)
         {
@@ -31,6 +31,7 @@ public class CalendarView extends JFrame
                 // The table always has at least one row, if the dailyRecipe does not
                 // contain recipes the text "Click to select" is added to the first row
                 for (List<Recipe> list : recipeList)
+                    //iteraates through each dailyRecipe list and sets the largest size as max
                     max = Math.max(max, list.size());
                 return max;
             }
